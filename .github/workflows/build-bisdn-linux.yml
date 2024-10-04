@@ -25,6 +25,16 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install kas
 
+      - name: Cache BitBake directories
+        uses: actions/cache@v2
+        with:
+          path: |
+            build/downloads
+            build/sstate-cache
+          key: ${{ runner.os }}-bitbake-${{ hashFiles('**/bisdn-linux.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-bitbake-
+
       - name: Build BISDN Linux
         run: |
           kas-container build bisdn-linux.yaml
