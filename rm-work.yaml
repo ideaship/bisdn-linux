@@ -1,0 +1,6 @@
+header:
+    version: 14
+
+local_conf_header:
+    rm-work-conf:
+        INHERIT += "rm_work"
