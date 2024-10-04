@@ -25,6 +25,15 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install kas
 
+      - name: Inspect build host
+        run: |
+          echo --- df -h
+          df -h
+          echo --- free -h
+          free -h
+          echo --- lscpu
+          lscpu
+
       - name: Cache BitBake directories
         uses: actions/cache@v2
         with:
