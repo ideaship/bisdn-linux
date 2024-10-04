@@ -38,7 +38,6 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            build/downloads
             build/sstate-cache
           key: ${{ runner.os }}-bitbake-${{ hashFiles('**/bisdn-linux.yaml') }}
           restore-keys: |
