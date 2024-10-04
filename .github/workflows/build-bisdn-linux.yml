@@ -3,7 +3,7 @@ name: Build BISDN Linux
 on:
   push:
     branches:
-      - main
+      - rl_build
   pull_request:
     branches:
       - main
