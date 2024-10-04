@@ -37,7 +37,7 @@ jobs:
 
       - name: Build BISDN Linux
         run: |
-          kas-container build bisdn-linux.yaml
+          KAS_TARGET=minimal kas-container build bisdn-linux.yaml:rm-work.yaml
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
