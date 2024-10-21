@@ -22,20 +22,23 @@ jobs:
       - name: Free disk space
         run: |
           echo ------------------------------------------------------------------------
-          df -h /
+          df -h
           sudo du -msc \
             /usr/local/lib/android \
             /usr/share/dotnet \
             /opt/ghc \
             "$AGENT_TOOLSDIRECTORY" || true
+          echo .
+          sudo du -msc /home/runner/* /mnt/* /opt/* /usr/local/lib/* /usr/local/share/* /usr/share/* /var/lib/* || true
+          echo .
           # Free disk space by removing code we do not need
           sudo rm -rf /usr/local/lib/android  # will release about 10 GB if you don't need Android
           sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
           sudo rm -rf /opt/ghc
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo --- df -h
           echo ------------------------------------------------------------------------
           df -h /
+          cat /mnt/DATALOSS_WARNING_README.txt
 
       - name: Install dependencies
         run: |
@@ -45,10 +48,10 @@ jobs:
 
       - name: Inspect build host
         run: |
-          df -h
-          echo
+          df -h /
+          echo .
           free -h
-          echo
+          echo .
           lscpu
 
       - name: Cache BitBake directories
@@ -62,7 +65,7 @@ jobs:
 
       - name: Build BISDN Linux
         run: |
-          KAS_TARGET=full kas-container build bisdn-linux.yaml:rm-work.yaml
+          KAS_TARGET=minimal kas-container build bisdn-linux.yaml:rm-work.yaml
           echo ------------------------------------------------------------------------
           df -h /
 
