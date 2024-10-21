@@ -68,7 +68,7 @@ jobs:
 
       - name: Build BISDN Linux
         run: |
-          KAS_TARGET=minimal kas-container build bisdn-linux.yaml:rm-work.yaml
+          KAS_TARGET=full kas-container build bisdn-linux.yaml:rm-work.yaml
           echo ------------------------------------------------------------------------
           df -h /
 
