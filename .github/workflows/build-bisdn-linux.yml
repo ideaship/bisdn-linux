@@ -47,7 +47,7 @@ jobs:
           lscpu
 
       - name: Cache BitBake directories
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             build/sstate-cache
@@ -58,6 +58,8 @@ jobs:
       - name: Build BISDN Linux
         run: |
           KAS_TARGET=minimal kas-container build bisdn-linux.yaml:rm-work.yaml
+          echo --- df -h
+          df -h
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
