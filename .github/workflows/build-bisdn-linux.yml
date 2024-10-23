@@ -97,4 +97,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: onie-bisdn-${{ env.TARGET }}-${{ matrix.machine }}
-          path: build/tmp/deploy/images/*/onie-bisdn-*-20*.bin
+          path: |
+            build/tmp/deploy/images/*/onie-bisdn-*-20*.bin
+            build/tmp/buildstats
