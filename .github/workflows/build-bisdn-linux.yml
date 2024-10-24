@@ -57,7 +57,7 @@ jobs:
             "
           # Ignore non-existent directories
           echo "Space we are about to reclaim"
-          sudo du  --block-size=1G -sc $del_dirs 2>/dev/null || true
+          sudo du  -msc $del_dirs 2>/dev/null || true
           sudo rm -rf $del_dirs 2>/dev/null
           echo .
           df -h /
@@ -98,7 +98,7 @@ jobs:
           export KAS_TARGET=$TARGET
           kas-container build "$KAS_CFG_FILES"
 
-      - name: Upload BISDN Linux image
+      - name: Upload BISDN Linux image and buildstats
         uses: actions/upload-artifact@v4
         with:
           name: onie-bisdn-${{ env.TARGET }}-${{ matrix.machine }}
