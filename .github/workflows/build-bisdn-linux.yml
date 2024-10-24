@@ -12,6 +12,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        machine: [generic-x86-64, generic-armel-iproc]
+
+    env:
+      KAS_CFG_FILES: "bisdn-linux.yaml:rm-work.yaml"
+      MACHINE: "${{ matrix.machine }}"
+      # Build full image (for faster pipeline tests, use "minimal")
+      TARGET: "full"
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -26,12 +36,67 @@ jobs:
           free -h
           echo .
           df -h
-          echo .
-          cat /etc/os-release
-          sudo du -m / > du || true
 
-      - name: Upload du
+      - name: Free disk space
+        run: |
+          df -h /
+          echo .
+          del_dirs="\
+            "$AGENT_TOOLSDIRECTORY" \
+            /opt/ghc \
+            /usr/local/lib/android \
+            /usr/local/share/chromium \
+            /usr/local/share/powershell \
+            /usr/share/dotnet \
+            /usr/share/swift \
+            "
+          # Ignore non-existent directories
+          echo "Space we are about to reclaim"
+          sudo du  --block-size=1G -sc $del_dirs 2>/dev/null || true
+          sudo rm -rf $del_dirs 2>/dev/null
+          echo .
+          df -h /
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install kas
+
+      # The kas dump file records the current state of each source repo.
+      # We use it for the cache key in the next step.
+      - name: Create kas configuration dump file
+        run: |
+          export KAS_MACHINE=$MACHINE
+          export KAS_TARGET=$TARGET
+          kas-container dump "$KAS_CFG_FILES" --resolve-refs > dump
+
+      # sstate-cache saves a lot of time. Do not cache anything else (such
+      # as build/downloads) to at least have a chance to cache both
+      # MACHINEs without running into github's cache size limit.
+      # Current state: https://github.com/bisdn/bisdn-linux/actions/caches
+      - name: Cache BitBake directories
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/sstate-cache
+          key: ${{ matrix.machine }}-${{ env.TARGET }}-${{ hashFiles('**/dump') }}
+          restore-keys: |
+            ${{ matrix.machine }}-${{ env.TARGET }}-
+            ${{ matrix.machine }}-
+
+      # On a machine with all build dependencies installed, this is the only
+      # command required to download the source repos and build the image.
+      - name: Build BISDN Linux
+        run: |
+          export KAS_MACHINE=$MACHINE
+          export KAS_TARGET=$TARGET
+          kas-container build "$KAS_CFG_FILES"
+
+      - name: Upload BISDN Linux image
         uses: actions/upload-artifact@v4
         with:
-          name: du
-          path: du
+          name: onie-bisdn-${{ env.TARGET }}-${{ matrix.machine }}
+          path: |
+            build/tmp/deploy/images/*/onie-bisdn-*-20*.bin
+            build/tmp/buildstats
