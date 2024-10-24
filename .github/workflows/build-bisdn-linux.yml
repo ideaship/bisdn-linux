@@ -128,7 +128,7 @@ jobs:
           echo "##############################################################"
           du -ms "$SSTATE_CACHE_DIR"
           echo "Keeping sstate-cache for a select few packages."
-          find "$SSTATE_DIR" -type f -name 'sstate:*' | while read filepath; do
+          find "$SSTATE_CACHE_DIR" -type f -name 'sstate:*' | while read filepath; do
             # Get the package name from the filename
             pkgname=$(echo "$filepath" | sed -n 's/.*sstate:\([^:]*\):.*/\1/p')
             # If the package name is not in the list above, remove the file.
@@ -191,7 +191,7 @@ jobs:
           echo "##############################################################"
           du -ms "$SSTATE_CACHE_DIR"
           echo "Keeping sstate-cache for a select few packages."
-          find "$SSTATE_DIR" -type f -name 'sstate:*' | while read filepath; do
+          find "$SSTATE_CACHE_DIR" -type f -name 'sstate:*' | while read filepath; do
             # Get the package name from the filename
             pkgname=$(echo "$filepath" | sed -n 's/.*sstate:\([^:]*\):.*/\1/p')
             # If the package name is not in the list above, remove the file.
