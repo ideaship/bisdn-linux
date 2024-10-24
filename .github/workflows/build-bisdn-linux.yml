@@ -44,7 +44,12 @@ jobs:
           del_dirs="\
             "$AGENT_TOOLSDIRECTORY" \
             /opt/ghc \
+            /opt/google \
+            /opt/microsoft \
+            /usr/lib/google-cloud-sdk \
+            /usr/lib/jvm \
             /usr/local/lib/android \
+            /usr/local/lib/node_modules \
             /usr/local/share/chromium \
             /usr/local/share/powershell \
             /usr/share/dotnet \
