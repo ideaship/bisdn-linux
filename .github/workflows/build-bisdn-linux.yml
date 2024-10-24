@@ -90,6 +90,61 @@ jobs:
             ${{ matrix.machine }}-${{ env.TARGET }}-
             ${{ matrix.machine }}-
 
+      - name: Prune sstate-cache
+        run: |
+          pkgnames=(binutils
+            cargo-native
+            cmake-native
+            gcc
+            gcc-cross-arm
+            gcc-cross-x86_64
+            gcc-runtime
+            gettext-native
+            ggc-runtime
+            glibc
+            glibc-locale
+            grpc
+            grpc-native
+            harfbuzz
+            icu
+            icu-native
+            linux-yocto-onl
+            net-snmp
+            onl
+            openssl
+            openssl-native
+            perl
+            protobuf
+            protobuf-native
+            qemu-native
+            qemu-system-native
+            rofl-common
+            rust-llvm-native
+            rust-native
+            systemd
+          )
+
+          SSTATE_CACHE_DIR=build
+          echo "##############################################################"
+          du -ms "$SSTATE_CACHE_DIR"
+          echo "Keeping sstate-cache for a select few packages."
+          find "$SSTATE_DIR" -type f -name 'sstate:*' | while read filepath; do
+            # Get the package name from the filename
+            pkgname=$(echo "$filepath" | sed -n 's/.*sstate:\([^:]*\):.*/\1/p')
+            # If the package name is not in the list above, remove the file.
+            if [[ ! " ${pkgnames[@]} " =~ " ${pkgname} " ]]; then
+              echo "Removing $filepath."
+              rm "$filepath"
+            fi
+          done
+          echo "##############################################################"
+          du -ms "$SSTATE_CACHE_DIR"
+          echo "Removing duplicates in sstate-cache."
+          ./sources/poky/scripts/sstate-cache-management.sh \
+            --cache-dir="$SSTATE_CACHE_DIR" --remove-duplicated --yes
+          echo "##############################################################"
+          du -ms "$SSTATE_CACHE_DIR"
+
       # On a machine with all build dependencies installed, this is the only
       # command required to download the source repos and build the image.
       - name: Build BISDN Linux
@@ -134,24 +189,24 @@ jobs:
 
           SSTATE_CACHE_DIR=build/sstate-cache
           echo "##############################################################"
-          du -ms build/sstate-cache"
+          du -ms "$SSTATE_CACHE_DIR"
           echo "Keeping sstate-cache for a select few packages."
-          find $SSTATE_DIR -type f -name 'sstate:*' | while read filepath; do
+          find "$SSTATE_DIR" -type f -name 'sstate:*' | while read filepath; do
             # Get the package name from the filename
             pkgname=$(echo "$filepath" | sed -n 's/.*sstate:\([^:]*\):.*/\1/p')
             # If the package name is not in the list above, remove the file.
             if [[ ! " ${pkgnames[@]} " =~ " ${pkgname} " ]]; then
-              echo "Removing $filepath"
+              echo "Removing $filepath."
               rm "$filepath"
             fi
           done
           echo "##############################################################"
-          du -ms build/sstate-cache"
-          echo "Removing duplicates in sstate-cache.
+          du -ms "$SSTATE_CACHE_DIR"
+          echo "Removing duplicates in sstate-cache."
           ./sources/poky/scripts/sstate-cache-management.sh \
-            --cache-dir=build/sstate-cache.exp --remove-duplicated --yes
+            --cache-dir="$SSTATE_CACHE_DIR" --remove-duplicated --yes
           echo "##############################################################"
-          du -ms build/sstate-cache"
+          du -ms "$SSTATE_CACHE_DIR"
 
       - name: Upload BISDN Linux image and buildstats
         uses: actions/upload-artifact@v4
