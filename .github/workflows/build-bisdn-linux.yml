@@ -20,7 +20,7 @@ jobs:
       KAS_CFG_FILES: "bisdn-linux.yaml:rm-work.yaml"
       MACHINE: "${{ matrix.machine }}"
       # Build full image (for faster pipeline tests, use "minimal")
-      TARGET: "minimal"
+      TARGET: "full"
 
     steps:
       - name: Check out repository
